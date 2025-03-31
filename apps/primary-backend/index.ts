@@ -30,3 +30,7 @@ app.get("/projects", authMiddleware, async (req, res) => {
   });
   res.json(project);
 });
+
+app.listen(8080, () => {
+  console.log("Server is running on port 8080");
+});
