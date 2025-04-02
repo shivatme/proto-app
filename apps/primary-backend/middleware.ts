@@ -21,7 +21,7 @@ export function authMiddleware(
   const decoded = jwt.verify(token, publicKey, {
     algorithms: ["RS256"],
   }) as JwtPayload;
-  console.log(decoded);
+  // console.log(decoded);
   if (!decoded) {
     res.status(401).json({ message: "Unauthorized" });
     return;

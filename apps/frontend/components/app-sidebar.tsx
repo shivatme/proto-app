@@ -44,7 +44,8 @@ function useProjects() {
           Authorization: `Bearer ${token}`,
         },
       });
-      const projectsByDate = response.data.projects.reduce(
+      console.log(response);
+      const projectsByDate = response.data.projects?.reduce(
         (acc: { [date: string]: Project[] }, project: Project) => {
           const date = new Date(project.createdAt).toLocaleDateString("en-US", {
             year: "numeric",

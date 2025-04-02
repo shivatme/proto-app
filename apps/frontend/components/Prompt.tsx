@@ -12,7 +12,6 @@ import { BACKEND_URL } from "@/config";
 export function Prompt() {
   const [prompt, setPrompt] = useState("");
   const { getToken } = useAuth();
-  console.log(prompt);
   return (
     <div>
       <Textarea
