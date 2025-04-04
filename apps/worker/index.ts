@@ -3,6 +3,8 @@ import express from "express";
 import { prismaClient } from "db/client";
 import { GoogleGenAI } from "@google/genai";
 import { systemPrompt } from "./systemPrompt";
+import { ArtifactProcessor } from "./parser";
+import { onFileUpdate, onShellCommand } from "./os";
 
 const app = express();
 app.use(cors());
@@ -42,35 +44,36 @@ app.post("/prompt", async (req, res) => {
   //TODO: aritifact
   const chat = client.chats.create({
     model: "gemini-2.0-flash",
-    history: [],
-  });
-  //   const response = client.models
-  //     .generateContent({
-  //       model: "gemini-2.0-flash",
-  //       contents: allPrompts.map((p: any) => ({
-  //         role: p.type === "USER" ? "user" : "model",
-  //         content: [{ text: p.content }],
-  //       })),
-  //       config: {
-  //         maxOutputTokens: 10000,
-  //         temperature: 0.1,
-  //         // systemInstruction: systemPrompt("REACT_NATIVE"),
-  //       },
-  //     })
-  //     .then((response) => {
-  //       console.log(response);
-  //       //Proces and apply the response
-  //       // get last mesage and add to db
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  const response = await chat.sendMessage({
-    message: prompt,
+    history: allPrompts.map((p: any) => ({
+      role: p.type === "USER" ? "user" : "model",
+      content: [{ text: p.content }],
+    })),
+    config: {
+      maxOutputTokens: 10000,
+      temperature: 0.1,
+      systemInstruction: systemPrompt("REACT_NATIVE"),
+    },
   });
 
-  console.log(response.text);
-  res.json({ response: response.text });
+  let artifactProcessor = new ArtifactProcessor(
+    "",
+    onFileUpdate,
+    onShellCommand
+  );
+  let artifact = "";
+
+  const response = await chat.sendMessageStream({
+    message: prompt,
+  });
+  for await (const chunk of response) {
+    artifactProcessor.append(chunk.text || "");
+    artifactProcessor.parse();
+    artifact += chunk.text || "";
+    // console.log(chunk.text);
+    // console.log("_".repeat(80));
+  }
+  console.log(response);
+  //   res.json({ response: response.text });
 });
 app.listen(9091, () => {
   console.log("Server is running on port 9091");
