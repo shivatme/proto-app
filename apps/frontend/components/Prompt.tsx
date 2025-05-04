@@ -1,14 +1,13 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { BACKEND_URL } from "@/config";
 import { ChevronRight, MoveUpRight, Send } from "lucide-react";
 import { Button } from "./ui/button";
 import { Textarea } from "./Textarea";
 import axios from "axios";
-import { useRef, useState } from "react";
-import { headers } from "next/headers";
 import { motion } from "motion/react";
 import { useAuth } from "@clerk/nextjs";
-import { BACKEND_URL } from "@/config";
 import { prompts } from "@/lib/constants";
 import {
   AlertDialog,
@@ -22,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { containerVariants, itemVariants } from "@/lib/animation-variants";
+import { useRouter } from "next/navigation";
 
 export function Prompt() {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
@@ -29,7 +29,7 @@ export function Prompt() {
   const [prompt, setPrompt] = useState("");
 
   const { getToken } = useAuth();
-  // const router = useRouter();
+  const router = useRouter();
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +49,14 @@ export function Prompt() {
         },
       }
     );
+    router.push(`/project/${response.data.projectid}?initPrompt=${prompt}`);
   };
+
+  useEffect(() => {
+    if (promptRef.current) {
+      promptRef.current.focus();
+    }
+  }, []);
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible">

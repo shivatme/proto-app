@@ -75,6 +75,13 @@ app.post("/prompt", async (req, res) => {
   console.log(response);
   //   res.json({ response: response.text });
 });
+
+app.get("/worker/:id", async (req, res) => {
+  const previewUrl = "http://192.168.29.162:8080";
+  console.log("previewUrl", previewUrl);
+  res.json({ previewUrl });
+});
+
 app.listen(9091, () => {
   console.log("Server is running on port 9091");
 });
