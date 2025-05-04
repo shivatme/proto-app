@@ -31,6 +31,16 @@ app.get("/projects", authMiddleware, async (req, res) => {
   res.json({ projects });
 });
 
+app.get("/prompts/:projectId", authMiddleware, async (req, res) => {
+  const userId = req.userId!;
+  const projectId = req.params.projectId;
+
+  const prompts = await prismaClient.prompt.findMany({
+    where: { projectId },
+  });
+  res.json({ prompts });
+});
+
 app.listen(8050, () => {
-  console.log("Server is running on port 8080");
+  console.log("Server is running on port 8050");
 });
